@@ -1,7 +1,7 @@
 ## 基于spring aop的插件体系
 基于spring aop，为容器中发bean，动态启停一些插件功能，比如日志打印、方法执行次数统计、方法耗时统计等。
 
-为什么要“动态启停”？
+**为什么要“动态启停”？**
 - 部分功能可能web工程并非全天候需要；
 - 系统某些功能是体验版，试用到期后停用新特性；
 
@@ -16,12 +16,28 @@
 plugin-samples 一些插件样例，插件必须实现Advice接口。
 plugin-web 创建管理的web模块。
 
-plugins 目录下，是打包jar的插件。
+plugins 目录下，是打好jar的插件。
 
 
+#### plugin-core
+插件工厂，要实现插件的安装、激活、禁用等，其核心接口如下：
+```
+public interface SpringPluginFactory {
+    void installPlugin(PluginConfig config, Boolean active);
+
+    void activePlugin(String pluginId);
+
+    void disablePlugin(String pluginId);
+
+    void unstallPlugin(String pluginId);
+
+    List<PluginConfig> getInstalledPlugins();
+}
+```
+插件的动态启停，是通过spring aop Advised.addAdvice和removeAdvice来完成。
 
 ##### 插件的本地配置文件
-默认位于 user.home/.plugins/PluginConfigs.dat
+默认位于 user.home/.plugins/PluginConfigs.dat 中。
 json结构，如下：
 ```
 {
@@ -67,10 +83,10 @@ PluginSite的json结构
 #### Advice 与 Advised
 ###### Advice
 Advice，意为通知，也叫增强，对应我们的AOP增强逻辑；
-我们实现的AOP增强逻辑，常常实现MethodBeforeAdvice；
+我们实现的AOP增强逻辑，常常实现MethodBeforeAdvice等接口；
 
 ###### Advised
-Advised，意为“被增强的”，也就是被AOP增强的，通常是代理对象（由jdk动态代理或cglib生成）；
+Advised，意为“被增强的”，也就是被AOP增强的接口/类，通常是代理对象（由jdk动态代理或cglib生成）；
 我们对某些接口进行aop增强，增强之后，这些接口都是Advised。
 
 
@@ -88,7 +104,5 @@ java.lang.ClassCastException: com.ljheee.plugin.app.service.UserServiceImpl cann
 因此将UserServiceImpl.getUser方法加上@Async，就变成aop代理，就能正常工作了。
 
 
-
-
-访问页面
+页面访问路径
 http://localhost:8080/pluginManager.jsp

@@ -81,7 +81,7 @@ public class DefaultPluginFactory implements SpringPluginFactory, ApplicationCon
         String baseDir = BASE_DIR;
         File configFile = new File(baseDir + "PluginConfigs.dat");
         if (!configFile.exists()) {
-            return null;
+            return new HashMap<>();
         }
         InputStream in = new FileInputStream(configFile);
         Map<String, PluginConfig> result = new HashMap<>();
